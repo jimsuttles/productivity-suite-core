@@ -45,6 +45,30 @@ struct SuiteHandoffPayloadTests {
         #expect(payload.metadata["futureCompatibleKey"] == "preserved")
     }
 
+    @Test("A legacy Quick Capture to Today List v1 payload decodes")
+    func legacyQuickCaptureToTodayListFixture() throws {
+        let fixture = """
+        {
+          "id": "A5E9A66B-104A-4D12-8718-8D37826E2273",
+          "version": 1,
+          "sourceApp": "quickCapture",
+          "destinationApp": "todayList",
+          "createdAt": "2025-03-04T12:34:56Z",
+          "title": "Review project notes",
+          "notes": "Captured before standup",
+          "metadata": {
+            "sourceList": "Inbox"
+          }
+        }
+        """
+        let data = try #require(fixture.data(using: .utf8))
+        let payload = try SuiteHandoffCodec.decode(data)
+
+        #expect(payload.version == 1)
+        #expect(payload.sourceApp == .quickCapture)
+        #expect(payload.destinationApp == .todayList)
+    }
+
     @Test("Invalid JSON is reported as an invalid payload")
     func invalidPayload() {
         #expect(throws: SuiteHandoffCoreError.invalidPayload) {
