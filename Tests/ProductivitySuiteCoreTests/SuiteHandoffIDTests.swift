@@ -3,6 +3,28 @@ import Testing
 @testable import ProductivitySuiteCore
 
 struct SuiteHandoffIDTests {
+    @Test("A custom seed produces a stable deterministic UUID")
+    func customSeedDeterministicStability() {
+        let first = SuiteHandoffID.generate(seed: "source|entity|destination")
+        let second = SuiteHandoffID.generate(seed: "source|entity|destination")
+
+        #expect(first == second)
+    }
+
+    @Test("A canonical seed produces the same UUID as the typed API")
+    func canonicalSeedMatchesTypedGenerator() {
+        let typed = SuiteHandoffID.generate(
+            sourceApp: .quickCapture,
+            sourceEntityID: "capture-123",
+            destinationApp: .todayList
+        )
+        let seeded = SuiteHandoffID.generate(
+            seed: "quickcapture|capture-123|todaylist"
+        )
+
+        #expect(seeded == typed)
+    }
+
     @Test("A known Quick Capture identity produces a stable deterministic UUID")
     func quickCaptureDeterministicStability() throws {
         let first = SuiteHandoffID.generate(
